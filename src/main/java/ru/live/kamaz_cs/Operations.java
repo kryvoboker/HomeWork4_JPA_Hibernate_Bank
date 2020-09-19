@@ -72,13 +72,17 @@ public class Operations {
         return name;
     }
 
-    private int getCurrency() {
+    private String getCurrency() {
         Scanner sc = new Scanner(System.in);
         System.out.println("Select currency: ");
         System.out.println("1: USD" + "\n" + "2: EUR" + "\n" + "3: UAH");
         String sCurrency = sc.nextLine();
         int currency = Integer.parseInt(sCurrency);
-        return currency;
+        String a = null;
+        for (int j = 0; j < CURRENCYS.length; j += 1) {
+            a = CURRENCYS[currency - 1];
+        }
+        return a;
     }
 
     private double getAmount() {
@@ -91,26 +95,26 @@ public class Operations {
 
     private synchronized void toUpAmount() { //пополняю счет // заранее создал готовых пользователей и готовые названия валют, в самом низу класса
         int name = getUserToTopUpAmount();
-        int currency = getCurrency();
+        String currency = getCurrency();
         double amount = getAmount();
 
         if (name == 1 || name == 2 || name == 3 || name == 4) {
             for (int i = 0; i < NAMES.length; i += 1) {
                 for (int j = 0; j < CURRENCYS.length; j += 1) {
-                    Transaction transaction = new Transaction(NAMES[name - 1], 0, "none", amount, CURRENCYS[currency - 1], new Date(), 0, "none", "none", 0);
+                    Transaction transaction = new Transaction(NAMES[name - 1], 0, "none", amount, currency, new Date(), 0, "none", "none", 0);
 
                     Query query = em.createNamedQuery("MoneyAccount.findAll", MoneyAccount.class);
                     List<MoneyAccount> m = query.getResultList();
 
                     for (MoneyAccount f : m) {
                         if (f.getNameOfUser().equals(NAMES[name - 1])) {
-                            if (currency == 1) {
+                            if (currency.equals("USD")) {
                                 f.setCashInUSD(f.getCashInUSD() + amount);
                                 mergeMoneyAccount(f);                                    //постоянно обновляю значения в таблице moneyaccounts
-                            } else if (currency == 2) {
+                            } else if (currency.equals("EUR")) {
                                 f.setCashInEUR(f.getCashInEUR() + amount);
                                 mergeMoneyAccount(f);
-                            } else if (currency == 3) {
+                            } else if (currency.equals("UAH")) {
                                 f.setCashInUAH(f.getCashInUAH() + amount);
                                 mergeMoneyAccount(f);
                             }
@@ -124,81 +128,103 @@ public class Operations {
         }
     }
 
-    private int getUserForTransfareOut() {
+    private String getUserForTransfareOut() {
         Scanner sc = new Scanner(System.in);
         System.out.println("Select user for money out: ");
         System.out.println("1: " + NAMES[0] + "\n" + "2: " + NAMES[1] + "\n" + "3: " + NAMES[2] + "\n" + "4: " + NAMES[3]);
         String sNameOut = sc.nextLine();
-        int nameOut = Integer.parseInt(sNameOut);
-        return nameOut;
+        int b = Integer.parseInt(sNameOut);
+        String a = null;
+        for (int i = 0; i < NAMES.length; i += 1) {
+            a = NAMES[b - 1];
+        }
+        return a;
     }
 
-    private int getUserForTransfareIn() {
+    private String getUserForTransfareIn() {
         Scanner sc = new Scanner(System.in);
         System.out.println("Select user for money take: ");
         System.out.println("1: " + NAMES[0] + "\n" + "2: " + NAMES[1] + "\n" + "3: " + NAMES[2] + "\n" + "4: " + NAMES[3]);
         String sNameTake = sc.nextLine();
-        int nameTake = Integer.parseInt(sNameTake);
-        return nameTake;
+        int b = Integer.parseInt(sNameTake);
+        String a = null;
+        for (int i = 0; i < NAMES.length; i += 1) {
+            a = NAMES[b - 1];
+        }
+        return a;
     }
 
     private synchronized void moneyTransfer() { //перевод денег
-        int nameOut = getUserForTransfareOut();
-        int currency = getCurrency();
-        int nameTake = getUserForTransfareIn();
+        String nameOut = getUserForTransfareOut();
+        String currency = getCurrency();
+        String nameTake = getUserForTransfareIn();
         double amount = getAmount();
 
-        if (nameOut == 1 || nameOut == 2 || nameOut == 3 || nameOut == 4 &&
-                nameTake == 1 || nameTake == 2 || nameTake == 3 || nameTake == 4) {
-            for (int i = 0; i < NAMES.length; i += 1) {
-                for (int j = 0; j < CURRENCYS.length; j += 1) {
+        Query query = em.createNamedQuery("MoneyAccount.findAll", MoneyAccount.class);
+        List<MoneyAccount> m = query.getResultList();
 
-                    Query query = em.createNamedQuery("MoneyAccount.findAll", MoneyAccount.class);
-                    List<MoneyAccount> m = query.getResultList();
-
-                    for (MoneyAccount f : m) {
-                        if (!NAMES[nameOut - 1].equals(NAMES[nameTake - 1])) { //если пытается сам себе перевести, то пусть попытается еще раз
-                            if (f.getNameOfUser().equals(NAMES[nameOut - 1])) {
-                                if (f.getCashInEUR() >= amount || f.getCashInUAH() >= amount || f.getCashInUSD() >= amount) { //проверка на наличие денег и чтобы пользователь сам себе не пыталься переводить деньги
-                                    if (currency == 1) {
-                                        f.setCashInUSD(f.getCashInUSD() - amount);
-                                        mergeMoneyAccount(f);
-                                    } else if (currency == 2) {
-                                        f.setCashInEUR(f.getCashInEUR() - amount);
-                                        mergeMoneyAccount(f);
-                                    } else if (currency == 3) {
-                                        f.setCashInUAH(f.getCashInUAH() - amount);
-                                        mergeMoneyAccount(f);
-                                    }
-                                    Transaction transactionOut = new Transaction(NAMES[nameOut - 1], amount, CURRENCYS[currency - 1],
-                                            0, "none", new Date(), 0, "none", "none", 0);
-                                    saveTransaction(transactionOut);
-                                } else {
-                                    System.out.println("User do not have enough money to transfer!");
-                                    break;
-                                }
-                            } else if (f.getNameOfUser().equals(NAMES[nameTake - 1])) {
-                                if (f.getNameOfUser().equals(NAMES[nameTake - 1])) {
-                                    if (currency == 1) {
-                                        f.setCashInUSD(f.getCashInUSD() + amount);
-                                        mergeMoneyAccount(f);
-                                    } else if (currency == 2) {
-                                        f.setCashInEUR(f.getCashInEUR() + amount);
-                                        mergeMoneyAccount(f);
-                                    } else if (currency == 3) {
-                                        f.setCashInUAH(f.getCashInUAH() + amount);
-                                        mergeMoneyAccount(f);
-                                    }
-                                    Transaction transactionTake = new Transaction(NAMES[nameTake - 1], 0, "none", amount,
-                                            CURRENCYS[currency - 1], new Date(), 0, "none", "none", 0);
-                                    saveTransaction(transactionTake);
-                                }
-                            }
-                        }
-                    }
+        for (MoneyAccount f : m) {
+            if (f.getNameOfUser().equals(nameOut)) {
+                if (f.getCashInEUR() >= amount || f.getCashInUAH() >= amount || f.getCashInUSD() >= amount) { //проверка на наличие денег и чтобы пользователь сам себе не пыталься переводить деньги
+                    transferOut(nameOut, nameTake, amount, currency);
+                    transferIn(nameOut, nameTake, amount, currency);
+                }
+            } else {
+                    System.out.println("User do not have enough money to transfer!");
                     break;
                 }
-                break;
+            }
+        }
+
+
+
+
+    private void transferOut(String nameOut, String nameIn, double amount, String currency) {
+        Query query = em.createNamedQuery("MoneyAccount.findAll", MoneyAccount.class);
+        List<MoneyAccount> m = query.getResultList();
+
+        for (MoneyAccount f : m) {
+            if (!nameOut.equals(nameIn)) { //если пытается сам себе перевести, то пусть попытается еще раз
+                if (f.getNameOfUser().equals(nameOut)) {
+                    if (currency.equals("USD")) {
+                        f.setCashInUSD(f.getCashInUSD() - amount);
+                        mergeMoneyAccount(f);
+                    } else if (currency.equals("EUR")) {
+                        f.setCashInEUR(f.getCashInEUR() - amount);
+                        mergeMoneyAccount(f);
+                    } else if (currency.equals("UAH")) {
+                        f.setCashInUAH(f.getCashInUAH() - amount);
+                        mergeMoneyAccount(f);
+                    }
+                    Transaction transactionOut = new Transaction(nameOut, amount, currency,
+                            0, "none", new Date(), 0, "none", "none", 0);
+                    saveTransaction(transactionOut);
+                }
+            }
+        }
+    }
+
+    private void transferIn(String nameOut, String nameIn, double amount, String currency) {
+        Query query = em.createNamedQuery("MoneyAccount.findAll", MoneyAccount.class);
+        List<MoneyAccount> m = query.getResultList();
+
+        for (MoneyAccount f : m) {
+            if (!nameOut.equals(nameIn)) {
+                if (f.getNameOfUser().equals(nameIn)) {
+                    if (currency.equals("USD")) {
+                        f.setCashInUSD(f.getCashInUSD() + amount);
+                        mergeMoneyAccount(f);
+                    } else if (currency.equals("EUR")) {
+                        f.setCashInEUR(f.getCashInEUR() + amount);
+                        mergeMoneyAccount(f);
+                    } else if (currency.equals("UAH")) {
+                        f.setCashInUAH(f.getCashInUAH() + amount);
+                        mergeMoneyAccount(f);
+                    }
+                    Transaction transactionTake = new Transaction(nameIn, 0, "none", amount,
+                            currency, new Date(), 0, "none", "none", 0);
+                    saveTransaction(transactionTake);
+                }
             }
         }
     }

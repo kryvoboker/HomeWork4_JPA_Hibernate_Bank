@@ -164,10 +164,10 @@ public class Operations {
                 if (f.getCashInEUR() >= amount || f.getCashInUAH() >= amount || f.getCashInUSD() >= amount) { //проверка на наличие денег и чтобы пользователь сам себе не пыталься переводить деньги
                     transferOut(nameOut, nameTake, amount, currency);
                     transferIn(nameOut, nameTake, amount, currency);
+                } else {
+                    System.out.println("User do not have enough money to transfer!");
+                    break;
                 }
-            } else {
-                System.out.println("User do not have enough money to transfer!");
-                break;
             }
         }
     }
@@ -190,8 +190,8 @@ public class Operations {
                         f.setCashInUAH(f.getCashInUAH() - amount);
                         mergeMoneyAccount(f);
                     }
-                    Transaction transactionOut = new Transaction(nameOut, amount, currency,
-                            0, "none", new Date(), 0, "none", "none", 0);
+                    Transaction transactionOut = new Transaction(nameOut, amount, currency, 0, "none", new Date(),
+                            0, "none", "none", 0);
                     saveTransaction(transactionOut);
                 }
             }
@@ -215,8 +215,8 @@ public class Operations {
                         f.setCashInUAH(f.getCashInUAH() + amount);
                         mergeMoneyAccount(f);
                     }
-                    Transaction transactionTake = new Transaction(nameIn, 0, "none", amount,
-                            currency, new Date(), 0, "none", "none", 0);
+                    Transaction transactionTake = new Transaction(nameIn, 0, "none", amount, currency, new Date(),
+                            0, "none", "none", 0);
                     saveTransaction(transactionTake);
                 }
             }

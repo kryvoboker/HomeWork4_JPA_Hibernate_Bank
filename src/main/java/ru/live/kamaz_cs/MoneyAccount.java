@@ -4,6 +4,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "MoneyAccounts")
@@ -41,6 +42,24 @@ public class MoneyAccount {
             users.add(user);
         if ( ! user.moneyAccounts.contains(this))
             user.moneyAccounts.add(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof MoneyAccount)) return false;
+        MoneyAccount that = (MoneyAccount) o;
+        return getId() == that.getId() &&
+                Double.compare(that.getCashInUSD(), getCashInUSD()) == 0 &&
+                Double.compare(that.getCashInEUR(), getCashInEUR()) == 0 &&
+                Double.compare(that.getCashInUAH(), getCashInUAH()) == 0 &&
+                getNameOfUser().equals(that.getNameOfUser()) &&
+                Objects.equals(getUsers(), that.getUsers());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getNameOfUser(), getCashInUSD(), getCashInEUR(), getCashInUAH(), getUsers());
     }
 
     public List<User> getUsers() {

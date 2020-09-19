@@ -37,12 +37,13 @@ public class CurrencyExchange {
         this.usdForBuyinEUR = usdForBuyinEUR;
     }
 
-    //    public void addUser(User user) {
-//        if ( ! users.contains(user))
-//            users.add(user);
-//        if ( ! user.currencyExchanges.contains(this))
-//            user.currencyExchanges.add(this);
-//    }
+        public void addUser(User user) {
+        if ( ! users.contains(user))
+            users.add(user);
+        if ( ! user.currencyExchanges.contains(this))
+            user.currencyExchanges.add(this);
+    }
+
 
     public List<User> getUsers() {
         return Collections.unmodifiableList(users);

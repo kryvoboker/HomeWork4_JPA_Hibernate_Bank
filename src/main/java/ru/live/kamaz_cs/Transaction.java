@@ -50,29 +50,6 @@ public class Transaction {
             user.transactions.add(this);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Transaction)) return false;
-        Transaction that = (Transaction) o;
-        return getId() == that.getId() &&
-                Double.compare(that.getCashOut(), getCashOut()) == 0 &&
-                Double.compare(that.getCashTake(), getCashTake()) == 0 &&
-                Double.compare(that.getCashConversionOut(), getCashConversionOut()) == 0 &&
-                Double.compare(that.getCashConversionIn(), getCashConversionIn()) == 0 &&
-                Objects.equals(getUser(), that.getUser()) &&
-                Objects.equals(getCurrencyOut(), that.getCurrencyOut()) &&
-                Objects.equals(getCurrencyTake(), that.getCurrencyTake()) &&
-                Objects.equals(getCurrencyConversionOut(), that.getCurrencyConversionOut()) &&
-                Objects.equals(getCurrencyConversionIn(), that.getCurrencyConversionIn()) &&
-                Objects.equals(getUsers(), that.getUsers());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getId(), getUser(), getCashOut(), getCurrencyOut(), getCashTake(), getCurrencyTake(), getCashConversionOut(), getCurrencyConversionOut(), getCurrencyConversionIn(), getCashConversionIn(), getUsers());
-    }
-
     public List<User> getUsers() {
         return Collections.unmodifiableList(users);
     }
